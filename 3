@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Checkout</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+header { background: #0078d4; color: white; padding: 1em; text-align: center; }
+nav a { margin: 0 1em; color: white; text-decoration: none; }
+main { padding: 1em; max-width: 600px; margin: auto; }
+label { display: block; margin-top: 1em; }
+input, select { width: 100%; padding: 0.5em; margin-top: 0.5em; box-sizing: border-box; }
+button { background: #0078d4; color: white; border: none; padding: 0.75em 1.5em; margin-top: 1em; cursor: pointer; }
+button:hover { background: #005a9e; }
+</style>
+</head>
+<body>
+<header>
+<h1>Checkout</h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+</nav>
+</header>
+<main>
+<form id="checkout-form">
+<label for="name">Full Name</label>
+<input type="text" id="name" name="name" required />
+
+<label for="email">Email Address</label>
+<input type="email" id="email" name="email" required />
+
+<label for="address">Shipping Address</label>
+<input type="text" id="address" name="address" required />
+
+<label for="city">City</label>
+<input type="text" id="city" name="city" required />
+
+<label for="zip">Zip / Postal Code</label>
+<input type="text" id="zip" name="zip" required />
+
+<button type="submit">Place Order</button>
+</form>
+</main>
+<script>
+function updateCartCount() {
+const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+const count = cart.reduce((sum, item) => sum + item.qty, 0);
+document.getElementById("cart-count").textContent = count;
+}
+
+document.getElementById("checkout-form").addEventListener("submit", function(e) {
+e.preventDefault();
+// Simple validation passed, show order summary
+const name = e.target.name.value.trim();
+const email = e.target.email.value.trim();
+const address = e.target.address.value.trim();
+const city = e.target.city.value.trim();
+const zip = e.target.zip.value.trim();
+
+if (!name || !email || !address || !city || !zip) {
+alert("Please fill in all fields.");
+return;
+}
+
+const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+if (cart.length === 0) {
+alert("Your cart is empty.");
+return;
+}
+
+let orderSummary = `Order Summary:\nName: ${name}\nEmail: ${email}\nAddress: ${address}, ${city}, ${zip}\n\nItems:\n`;
+const products = [
+{ id: 1, name: "Smart Kitchen Scale", price: 25.99 },
+{ id: 2, name: "Multi-purpose Vegetable Chopper", price: 19.99 },
+{ id: 3, name: "Automatic Soap Dispenser", price: 29.99 }
+];
+let total = 0;
+cart.forEach(item => {
+const product = products.find(p => p.id === item.id);
+if(product) {
+const itemTotal = product.price * item.qty;
+total += itemTotal;
+orderSummary += `${product.name} x ${item.qty} = $${itemTotal.toFixed(2)}\n`;
+}
+});
+orderSummary += `\nTotal: $${total.toFixed(2)}`;
+
+alert(orderSummary + "\n\nThank you for your order! (Demo only - no real purchase)");
+localStorage.removeItem("cart");
+window.location.href = "index.html";
+});
+
+updateCartCount();
+</script>
+</body>
+</html>
