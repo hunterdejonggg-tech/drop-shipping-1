@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shopping Cart</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+header { background: #0078d4; color: white; padding: 1em; text-align: center; }
+nav a { margin: 0 1em; color: white; text-decoration: none; }
+main { padding: 1em; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 0.5em; border-bottom: 1px solid #ccc; }
+button { background: #0078d4; color: white; border: none; padding: 0.5em 1em; cursor: pointer; }
+button:hover { background: #005a9e; }
+</style>
+</head>
+<body>
+<header>
+<h1>Shopping Cart</h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+</nav>
+</header>
+<main>
+<table id="cart-table">
+<thead>
+<tr>
+<th>Product</th>
+<th>Quantity</th>
+<th>Price</th>
+<th>Remove</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<p><strong>Total: $<span id="total-price">0.00</span></strong></p>
+<button id="checkout-btn">Proceed to Checkout</button>
+</main>
+<script>
+const products = [
+{ id: 1, name: "Smart Kitchen Scale", price: 25.99 },
+{ id: 2, name: "Multi-purpose Vegetable Chopper", price: 19.99 },
+{ id: 3, name: "Automatic Soap Dispenser", price: 29.99 }
+];
+
+function updateCartCount() {
+const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+const count = cart.reduce((sum, item) => sum + item.qty, 0);
+document.getElementById("cart-count").textContent = count;
+}
+
+function renderCart() {
+const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+const tbody = document.querySelector("#cart-table tbody");
+tbody.innerHTML = "";
+let total = 0;
+cart.forEach(item => {
+const product = products.find(p => p.id === item.id);
+if(product) {
+total += product.price * item.qty;
+const tr = document.createElement("tr");
+tr.innerHTML = `
+<td>${product.name}</td>
+<td>${item.qty}</td>
+<td>$${(product.price * item.qty).toFixed(2)}</td>
+<td><button data-id="${item.id}">Remove</button></td>
+`;
+tbody.appendChild(tr);
+}
+});
+document.getElementById("total-price").textContent = total.toFixed(2);
+updateCartCount();
+}
+
+function removeFromCart(id) {
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+cart = cart.filter(item => item.id !== id);
+localStorage.setItem("cart", JSON.stringify(cart));
+renderCart();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+renderCart();
+document.querySelector("#cart-table").addEventListener("click", (e) => {
+if (e.target.tagName === "BUTTON") {
+const id = parseInt(e.target.getAttribute("data-id"));
+removeFromCart(id);
+}
+});
+document.getElementById("checkout-btn").addEventListener("click", () => {
+window.location.href = "checkout.html";
+});
+});
+</script>
+</body>
+</html>
